@@ -1,0 +1,96 @@
+/**
+ * Imports
+ */
+/**
+* Page
+*/
+.page {
+  width: 960px;
+  margin: 0 auto;
+}
+.page-header {
+  margin-top: 2px;
+  padding: 20px 30px;
+  font-size: 24px;
+  background-color: #f4f9ff;
+  border-bottom: 1px solid #cde;
+}
+.logo {
+  color: #888;
+}
+.logo-mail {
+  font-weight: bold;
+  color: #246;
+}
+/**
+* ListView component
+*/
+.list-header {
+  padding: 20px 5px;
+  position: relative;
+}
+.list-header .list-tools {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+.list-tools {
+  border-radius: 5px;
+  background-color: #fafafa;
+}
+/**
+ * Tools pages
+ */
+.list-tools-pages i {
+  font-size: 24px;
+  margin: 0 4px;
+  color: #888;
+}
+.list-tools-pages i:hover {
+  color: #000;
+  cursor: pointer;
+}
+.list-tools-pages i.disabled {
+  color: #aaa !important;
+  cursor: default;
+}
+.list-tools-pages i,
+.list-tools-pages span {
+  vertical-align: middle;
+}
+table.list-view {
+  border-collapse: collapse;
+  width: 100%;
+}
+table.list-view th {
+  background-color: #def;
+  padding: 10px;
+  color: #456;
+  border: 3px solid #cde;
+}
+table.list-view td {
+  padding: 10px;
+  color: #333;
+}
+table.list-view tr.odd td {
+  background-color: #f9fbff;
+}
+/**
+* Reset
+*/
+body,
+html {
+  margin: 0;
+  padding: 0;
+}
+ul.unstyled {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+/**
+* Application
+*/
+body {
+  font: 14px 'Arial';
+}
