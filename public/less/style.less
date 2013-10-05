@@ -1,14 +1,14 @@
 /**
  * Imports
  */
-@import "./mixins";
+@import "./utils/elements.less";
 @import "./page";
 @import "./components/list-view";
 
 /**
 * Reset
 */
-body, html {
+* {
     margin: 0;
     padding: 0;
 }
@@ -23,5 +23,7 @@ ul.unstyled {
 * Application
 */
 body {
+    overflow-y: scroll;
+    .user-select(none);
     font: 14px 'Arial';
 }

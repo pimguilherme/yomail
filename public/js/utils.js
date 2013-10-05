@@ -19,6 +19,17 @@
         // Plain object cloning
         clone:function (a) {
             return Utils.extend({}, a)
+        },
+
+        /**
+         * Nodes
+         */
+        getClassNames:function (node) {
+            return this.parseClassNames(node.className || "")
+        },
+
+        parseClassNames: function (cls){
+            return cls.split(/\s+/g)
         }
 
 

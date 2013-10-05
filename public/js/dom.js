@@ -31,8 +31,17 @@
      */
     var DOMWrapper = function (selector, context) {
         context = context || document
-        this.nodes = Array.prototype.slice.call(document.querySelectorAll(selector), 0)
-        this.selector = selector
+
+        // Node ?
+        if (typeof selector == 'object') {
+            this.nodes = [selector]
+        }
+        // Query Selector
+        else {
+            this.nodes = Array.prototype.slice.call(document.querySelectorAll(selector), 0)
+            this.selector = selector
+        }
+
     }
 
     DOMWrapper.prototype = {
@@ -42,7 +51,21 @@
         },
 
         each:function (fn) {
-            return this.nodes.each(fn)
+            return this.nodes.each(function (node) {
+                fn.apply(node, arguments)
+            })
+        },
+
+        /**
+         * Events
+         */
+
+        on:function (name, fn) {
+            this.each(function (node) {
+                node.addEventListener(name, function () {
+                    fn.apply(node, arguments)
+                })
+            })
         },
 
         /**
@@ -57,9 +80,35 @@
          */
 
         append:function (html) {
+
+            // If we are not given a node, we'll create one
+            // TODO support more than one element
+            if (typeof html != 'object') {
+                html = this.createElementFromHTML(html)
+            }
+
             this.each(function (node) {
-                node.innerHTML += html
+                var container = node
+                if (node.tagName.toLowerCase() == 'table') {
+                    container = node.querySelector("tbody")
+                }
+                container.appendChild(html)
             })
+        },
+
+        createElementFromHTML:function (html) {
+            var node = this._createElementFromHTML('div', html)
+            if (!node || node.nodeType == 3) {
+                node = this._createElementFromHTML('table', html)
+                node = node.firstChild
+            }
+            return node
+        },
+
+        _createElementFromHTML:function (parentTag, html) {
+            var div = document.createElement(parentTag)
+            div.innerHTML = html
+            return div.firstChild
         },
 
         remove:function () {
@@ -79,14 +128,75 @@
 
         html:function (code) {
             if (typeof code == 'undefined') {
-                return this.nodes.length && this.nodes[0].innerHTML
+                return this.first() && this.first().innerHTML
             }
             this.each(function (node) {
                 node.innerHTML = code
             })
+        },
+
+        /**
+         * Classes
+         */
+        addClass:function (name) {
+            var names = Utils.parseClassNames(name)
+            this.each(function (node) {
+                node.className = Utils.getClassNames(node).concat(names).unique().join(' ')
+            })
+        },
+
+        removeClass:function (name) {
+            var names = Utils.parseClassNames(name)
+            this.each(function (node) {
+                node.className =
+                    Utils.getClassNames(node)
+                        .filter(function (name) {
+                            return !~names.indexOf(name)
+                        })
+                        .unique()
+                        .join(' ')
+            })
+        },
+
+        toggleClass:function (name, bool) {
+            this[bool ? 'addClass' : 'removeClass'](name)
+        },
+
+        attr:function (name, val) {
+            if (typeof val == 'undefined') {
+                return this.first() && this.first().getAttribute(name)
+            }
+            this.each(function (node) {
+                $(node).setAttribute(name, val)
+            })
+            return this
+        },
+
+        val:function (val) {
+            if (typeof val == 'undefined') {
+                var node = this.first()
+                if (node.tagName.toLowerCase() == 'select'){
+                    return node.options[node.selectedIndex].value
+                }
+                return node.value
+            }
         }
 
+
     }
+
+    /**
+     * Chainnable wrappers
+     * -- Wraps methods to return "this" and hence be chainable
+     */
+    ;
+    ['addClass', 'removeClass', 'toggleClass', 'append'].each(function (name) {
+        var fn = DOMWrapper.prototype[name]
+        DOMWrapper.prototype[name] = function () {
+            fn.apply(this, arguments)
+            return this
+        }
+    })
 
 
     global.$ = $

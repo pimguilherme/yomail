@@ -8,11 +8,10 @@
     <link rel='stylesheet' href="./css/style.css"/>
     <link rel='stylesheet' href="./css/font-awesome.min.css"/>
 
-    <!-- Data Mocking -->
-    <script type="text/javascript" src="./js/data.js"></script>
     <!-- Scripts -->
-    <script type="text/javascript" src="./js/dom.js"></script>
     <script type="text/javascript" src="./js/native.js"></script>
+    <script type="text/javascript" src="./js/data.js"></script>
+    <script type="text/javascript" src="./js/dom.js"></script>
     <script type="text/javascript" src="./js/utils.js"></script>
     <script type="text/javascript" src="./js/app.js"></script>
 
@@ -22,25 +21,61 @@
 
     <script>
 
-
         $(function () {
 
-            /**
-             * Data
-             */
-            var emails = DATA.emails
+            var emailsView = new ListView({
+                collection:DATA.emails,
+                $el:$(".page-contents table.emails"),
+                perPage:getPerPage()
+            })
 
-            var EMAILS = 20
-                    , PER_PAGE = 10
-            while (EMAILS--) {
-                emails.push(Utils.clone(emails[0]))
+            // Renders all the page
+            // TODO modularize this
+            var render = function () {
+
+                $('.render-emails').html(
+                        "You have <b>" + emails.length + "</b> in your inbox. " +
+                                "Showing from <b>" + ((emailsView.page) * emailsView.perPage + 1) + "</b> " +
+                                "to <b>" + Math.min(emails.length, ((emailsView.page + 1) * emailsView.perPage)) + "</b>"
+                )
+
+                // Page numbering
+                $('.render-pages').html("Page " + (emailsView.page + 1) + " / " + emailsView.getTotalPages() + "")
+                $('.list-tools-pages').toggleClass("has-prev", emailsView.page > 0)
+                $('.list-tools-pages').toggleClass("has-next", emailsView.page < emailsView.getTotalPages() - 1)
+
+            }
+            render()
+
+
+            /**
+             * Events bootstrapping
+             */
+
+            /**
+             * Per Page
+             */
+            function getPerPage() {
+                return $('.list-tools-perPage select').val()
             }
 
+            $('.list-tools-perPage').on('change', function (ev) {
+                emailsView.setPerPage(getPerPage())
+                emailsView.setPage(0)
+                render()
+            })
 
-            var view = new ListView({
-                collection:emails,
-                $el:$(".page-contents table.emails"),
-                perPage:PER_PAGE
+            /**
+             * Page navigation
+             */
+            $('.action-prev').on('click', function () {
+                emailsView.prev()
+                render()
+            })
+
+            $('.action-next').on('click', function () {
+                emailsView.next()
+                render()
             })
 
         })
@@ -59,25 +94,50 @@
 
             <!-- Total items found -->
             <div class='list-header'>
-                You have <b>{{emails}}</b> in your inbox.
+                <span class='render-emails'>You have <b>{{emails}}</b> in your inbox.</span>
 
                 <!-- Tools -->
                 <div class='list-tools'>
+                    <div class='list-tools-filters'>
+                        <h1>Filters</h1>
+                        <div class="row">
+                            Name: <input type=text name=filter-name/>
+                        </div>
+                        <div class="row">
+                            Email: <input type=text name=filter-email/>
+                        </div>
+                        <div class="row">
+                            Subject: <input type=text name=filter-subject/>
+                        </div>
+                        <label>
+                            <input type=checkbox name=filter-date-cb/> Sent/received today
+                        </label>
+                    </div>
+                    <div class="list-tools-perPage">
+                        <label>
+                            Per page:
+                            <select>
+                                <option value="10" selected="selected">10</option>
+                                <option value="20">20</option>
+                                <option value="30">30</option>
+                            </select>
+                        </label>
+                    </div>
                     <div class='list-tools-pages'>
-                        <i class="icon-caret-left"></i>
-                        <span class='list-pages'>Page {{page}} / {{totalPages}}</span>
-                        <i class="icon-caret-right"></i>
+                        <i class="icon-caret-left action-prev"></i>
+                        <span class='list-pages render-pages'>Page {{page}} / {{totalPages}}</span>
+                        <i class="icon-caret-right action-next"></i>
                     </div>
                 </div>
             </div>
 
             <!-- Container for the list of emails -->
             <table class='list-view emails'>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Subject</th>
-                    <th>When</th>
+                <tr class='header'>
+                    <th data-attr="name">Name</th>
+                    <th data-attr="email">Email</th>
+                    <th data-attr="subject">Subject</th>
+                    <th data-attr="date">When</th>
                 </tr>
             </table>
 

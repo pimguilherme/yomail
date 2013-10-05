@@ -15,28 +15,73 @@
 
 .list-tools {
     .rounded(5px);
-    background-color: #fafafa;
+    background-color: #f6f6f6;
+    padding: 5px 8px;
+    >div {
+        display: inline-block;
+    }
 }
 
 /**
  * Tools pages
  */
 .list-tools-pages {
+
     i {
+        .opacity(0.5);
         font-size: 24px;
         margin: 0 4px;
         color: #888;
+    }
+    i, span {
+        vertical-align: middle;
+    }
+
+/**
+* States
+*/
+    .hasContents(){
+        .opacity(1);
         &:hover {
             color: #000;
             cursor: pointer;
         }
-        &.disabled {
-            color: #aaa !important;
-            cursor: default;
+    }
+
+    &.has-prev {
+        .action-prev {
+            .hasContents();
         }
     }
-    i, span {
-        vertical-align: middle;
+
+    &.has-next {
+        .action-next {
+            .hasContents();
+        }
+    }
+}
+
+/**
+ * Filters
+ */
+.list-tools-filters {
+    z-index: 100;
+    position: absolute;
+    padding: 10px;
+    border: 1px solid #000;
+    background-color: #fff;
+    .drop-shadow();
+    .rounded(6px);
+
+    h1 {
+        font: bold 18px 'Arial';
+    }
+    div.row {
+        margin: 10px 0;
+        input {
+            width: 100px;
+            border: 1px solid #ccc;
+        }
     }
 }
 
@@ -49,15 +94,64 @@ table.list-view {
         padding: 10px;
         color: #456;
         border: 3px solid #cde;
+
+        .transition(0.1s);
+
+        i {
+            position: absolute;
+            margin-left: 5px;
+            margin-top: 2px;
+            display: none;
+        }
+
+        &.sort-up, &.sort-down {
+            background-color: #fff;
+        }
+
+        &:hover {
+            cursor: pointer;
+            background-color: #e5f6ff;
+        }
+
+    /**
+    * Sorting
+    */
+        &.sort-up {
+            .icon-chevron-up {
+                display: inline-block;
+            }
+        }
+        &.sort-down {
+            .icon-chevron-down {
+                display: inline-block;
+            }
+        }
     }
 
     td {
         padding: 10px;
         color: #333;
+        overflow: hidden;
     }
 
     tr.odd td {
         background-color: #f9fbff;
     }
 
+}
+
+/**
+ * Email-specific classes
+ */
+td.email-date {
+    width: 120px;
+    text-align: center;
+}
+
+td.email-email {
+    width: 120px;
+}
+
+td.email-subject {
+    width: 420px;
 }

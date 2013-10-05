@@ -1,6 +1,12 @@
 /**
  * Imports
  */
+/*---------------------------------------------------
+    LESS Elements 0.9
+  ---------------------------------------------------
+    A set of useful LESS mixins
+    More info at: http://lesselements.com
+  ---------------------------------------------------*/
 /**
 * Page
 */
@@ -35,28 +41,88 @@
   right: 10px;
 }
 .list-tools {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
   border-radius: 5px;
-  background-color: #fafafa;
+  background-color: #f6f6f6;
+  padding: 5px 8px;
+}
+.list-tools > div {
+  display: inline-block;
 }
 /**
  * Tools pages
  */
+.list-tools-pages {
+  /**
+* States
+*/
+
+}
 .list-tools-pages i {
+  -moz-opacity: 0.5;
+  -khtml-opacity: 0.5;
+  -webkit-opacity: 0.5;
+  opacity: 0.5;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50);
+  filter: alpha(opacity=50);
   font-size: 24px;
   margin: 0 4px;
   color: #888;
 }
-.list-tools-pages i:hover {
-  color: #000;
-  cursor: pointer;
-}
-.list-tools-pages i.disabled {
-  color: #aaa !important;
-  cursor: default;
-}
 .list-tools-pages i,
 .list-tools-pages span {
   vertical-align: middle;
+}
+.list-tools-pages.has-prev .action-prev {
+  -moz-opacity: 1;
+  -khtml-opacity: 1;
+  -webkit-opacity: 1;
+  opacity: 1;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(opacity=100);
+  filter: alpha(opacity=100);
+}
+.list-tools-pages.has-prev .action-prev:hover {
+  color: #000;
+  cursor: pointer;
+}
+.list-tools-pages.has-next .action-next {
+  -moz-opacity: 1;
+  -khtml-opacity: 1;
+  -webkit-opacity: 1;
+  opacity: 1;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(opacity=100);
+  filter: alpha(opacity=100);
+}
+.list-tools-pages.has-next .action-next:hover {
+  color: #000;
+  cursor: pointer;
+}
+/**
+ * Filters
+ */
+.list-tools-filters {
+  z-index: 100;
+  position: absolute;
+  padding: 10px;
+  border: 1px solid #000;
+  background-color: #fff;
+  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+}
+.list-tools-filters h1 {
+  font: bold 18px 'Arial';
+}
+.list-tools-filters div.row {
+  margin: 10px 0;
+}
+.list-tools-filters div.row input {
+  width: 100px;
+  border: 1px solid #ccc;
 }
 table.list-view {
   border-collapse: collapse;
@@ -67,19 +133,60 @@ table.list-view th {
   padding: 10px;
   color: #456;
   border: 3px solid #cde;
+  -webkit-transition: all 0.1s ease-out;
+  -moz-transition: all 0.1s ease-out;
+  -o-transition: all 0.1s ease-out;
+  transition: all 0.1s ease-out;
+  /**
+    * Sorting
+    */
+
+}
+table.list-view th i {
+  position: absolute;
+  margin-left: 5px;
+  margin-top: 2px;
+  display: none;
+}
+table.list-view th.sort-up,
+table.list-view th.sort-down {
+  background-color: #fff;
+}
+table.list-view th:hover {
+  cursor: pointer;
+  background-color: #e5f6ff;
+}
+table.list-view th.sort-up .icon-chevron-up {
+  display: inline-block;
+}
+table.list-view th.sort-down .icon-chevron-down {
+  display: inline-block;
 }
 table.list-view td {
   padding: 10px;
   color: #333;
+  overflow: hidden;
 }
 table.list-view tr.odd td {
   background-color: #f9fbff;
 }
 /**
+ * Email-specific classes
+ */
+td.email-date {
+  width: 120px;
+  text-align: center;
+}
+td.email-email {
+  width: 120px;
+}
+td.email-subject {
+  width: 420px;
+}
+/**
 * Reset
 */
-body,
-html {
+* {
   margin: 0;
   padding: 0;
 }
@@ -92,5 +199,10 @@ ul.unstyled {
 * Application
 */
 body {
+  overflow-y: scroll;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   font: 14px 'Arial';
 }

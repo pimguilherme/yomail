@@ -1,14 +1,70 @@
 /**
  * Views
  */
+// TODO Recycle event handlers
 var ListView = function (options) {
+
     Utils.extend(this, options || {})
+
+    var self = this
+
+    this.$header = this.$(".header")
+    this.$header.find('th').each(function () {
+
+        $(this).on('click', function (ev) {
+            var $el = $(this)
+            self.setSortBy($el.attr('data-attr'))
+        })
+
+        $(this).append("<i class=icon-chevron-down></i>")
+            .append("<i class=icon-chevron-up></i>")
+
+    })
+
     this.render()
+
 }
 
 ListView.prototype = {
 
+    /**
+     * DOM Element
+     */
     $el:null,
+    $:function () {
+        return this.$el.find.apply(this.$el, arguments)
+    },
+
+    /**
+     * Sorting
+     */
+    setSortBy:function (field, order) {
+
+        // Forcing ASC order for first ordering of field
+        if (this.sortByField != field) {
+            order = 1
+        }
+
+        this.sortByField = field
+        this.sortByOrder = order == undefined ? -this.sortByOrder : order
+        this.sort()
+        this.render()
+
+    },
+
+    sortByField:null,
+    sortByOrder:1,
+    sort:function () {
+        if (!this.sortByField) return
+
+        var field = this.sortByField
+            , order = this.sortByOrder
+
+        this.collection = this.collection.sort(function (a, b) {
+            return (a[field] < b[field] ? -1 : 1 ) * order
+        })
+    },
+
 
     /**
      * Pagination
@@ -16,16 +72,31 @@ ListView.prototype = {
     page:0,
     perPage:null,
     setPage:function (number) {
+        // Let's limit the page
+        number = Math.max(0, Math.min(number, this.getTotalPages() - 1))
+        // Nothing to change!
+        if (this.page == number) return
         this.page = number
         this.render()
     },
 
-    /**
-     * Collection
-     */
-    sort:function () {
-
+    setPerPage:function (perPage) {
+        this.perPage = perPage
+        this.render()
     },
+
+    next:function () {
+        this.setPage(this.page + 1)
+    },
+
+    prev:function () {
+        this.setPage(this.page - 1)
+    },
+
+    getTotalPages:function () {
+        return Math.ceil(this.collection.length / this.perPage)
+    },
+
 
     /**
      * Cleanup
@@ -44,13 +115,28 @@ ListView.prototype = {
     render:function () {
 
         var self = this
-            , items = this.collection
+
+        /**
+         * Columns header rendering
+         */
+        this.$header.find('th').each(function (node) {
+            var $node = $(node)
+            $node.removeClass('sort-up sort-down')
+            if ($node.attr('data-attr') == self.sortByField) {
+                $node.addClass('sort-' + (self.sortByOrder > 0 ? 'up' : 'down'))
+            }
+        })
+
+        /**
+         * Items rendering
+         */
+        var items = this.collection
 
         this.clear()
 
         // If we have a page limit, we should filter our items
         if (this.perPage) {
-            items = items.slice(this.page * this.perPage, this.perPage)
+            items = items.slice(this.page * this.perPage, this.page * this.perPage + this.perPage)
         }
 
         // Rendering each item
