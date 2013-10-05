@@ -82,6 +82,21 @@
         return s
     }
 
+    /**
+     * Function
+     */
+    Function.prototype.debounce = function (delay) {
+        var fn = this
+            , timeout = null
+        var wrapper = function () {
+            if (timeout) {
+                window.clearTimeout(timeout)
+            }
+            timeout = window.setTimeout(fn, delay)
+        }
+        return wrapper
+    }
+
 
     /**
      * Random (shared)

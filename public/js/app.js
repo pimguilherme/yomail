@@ -7,6 +7,9 @@ var ListView = function (options) {
     Utils.extend(this, options || {})
 
     var self = this
+    // We'll store the complete collection in a variable so we can restore it
+    // after filtering
+    this.completeCollection = this.collection
 
     this.$header = this.$(".header")
     this.$header.find('th').each(function () {
@@ -16,7 +19,8 @@ var ListView = function (options) {
             self.setSortBy($el.attr('data-attr'))
         })
 
-        $(this).append("<i class=icon-chevron-down></i>")
+        $(this)
+            .append("<i class=icon-chevron-down></i>")
             .append("<i class=icon-chevron-up></i>")
 
     })
@@ -36,6 +40,48 @@ ListView.prototype = {
     },
 
     /**
+     * Filtering
+     */
+    filters:null,
+    setFilters:function (filters) {
+        this.filters = filters
+
+        // No filters!
+        if (!this.hasFilters()) {
+            this.collection = this.completeCollection
+            this.render()
+            return
+        }
+
+        // We'll store the complete collection in a variable so we can restore it later
+        this.collection = this.completeCollection.filter(function (item) {
+            return ~item.name.indexOf(filters.name)
+                && ~item.email.indexOf(filters.email)
+                && ~item.subject.indexOf(filters.subject)
+                && (!filters.today || item.date.isToday())
+        })
+        this.setPage(0)
+        this.render()
+
+    },
+
+    hasFilters:function () {
+        if (!this.filters) return false
+        for (var key in this.filters) {
+            if (this.filters[key]) return true
+        }
+        return false
+    },
+
+    clearFilters:function () {
+        this.setFilters(null)
+    },
+
+    getTotalFilteredItems:function () {
+        return this.collection.length
+    },
+
+    /**
      * Sorting
      */
     setSortBy:function (field, order) {
@@ -49,7 +95,6 @@ ListView.prototype = {
         this.sortByOrder = order == undefined ? -this.sortByOrder : order
         this.sort()
         this.render()
-
     },
 
     sortByField:null,
@@ -97,6 +142,9 @@ ListView.prototype = {
         return Math.ceil(this.collection.length / this.perPage)
     },
 
+    getTotalItems:function () {
+        return this.completeCollection.length
+    },
 
     /**
      * Cleanup
@@ -112,6 +160,7 @@ ListView.prototype = {
      */
 
     // Renders current email items
+    // TODO avoid multiple renders in sequence
     render:function () {
 
         var self = this

@@ -158,7 +158,14 @@
             })
         },
 
+        hasClass:function (name) {
+            return this.first() && ~Utils.parseClassNames(this.first().className).indexOf(name)
+        },
+
         toggleClass:function (name, bool) {
+            if (typeof bool == 'undefined'){
+                bool = !this.hasClass(name)
+            }
             this[bool ? 'addClass' : 'removeClass'](name)
         },
 
@@ -175,11 +182,20 @@
         val:function (val) {
             if (typeof val == 'undefined') {
                 var node = this.first()
+                // Select input, we'll return its selected option
                 if (node.tagName.toLowerCase() == 'select'){
                     return node.options[node.selectedIndex].value
                 }
+                // Checkbox input, we'll return true/false
+                else if (node.tagName.toLowerCase() == 'input' && $(node).attr('type') == 'checkbox'){
+                    return !!node.checked
+                }
+                // Let's just try to return the default value
                 return node.value
             }
+            this.each(function (node){
+                node.value = val
+            })
         }
 
 

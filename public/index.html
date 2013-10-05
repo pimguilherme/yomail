@@ -8,144 +8,244 @@
     <link rel='stylesheet' href="./css/style.css"/>
     <link rel='stylesheet' href="./css/font-awesome.min.css"/>
 
-    <!-- Scripts -->
+    <!--
+        Scripts
+    -->
+    <!-- Native prototype JS Extensions (Array, String, etc) -->
     <script type="text/javascript" src="./js/native.js"></script>
+    <!-- Mock data -->
     <script type="text/javascript" src="./js/data.js"></script>
+    <!-- DOM Wrapper (jquery-like) -->
     <script type="text/javascript" src="./js/dom.js"></script>
+    <!-- Utilities -->
     <script type="text/javascript" src="./js/utils.js"></script>
+    <!-- Application (ListView) -->
     <script type="text/javascript" src="./js/app.js"></script>
 
 </head>
 
 <body>
 
-    <script>
+<script>
 
-        $(function () {
+    $(function () {
 
-            var emailsView = new ListView({
-                collection:DATA.emails,
-                $el:$(".page-contents table.emails"),
-                perPage:getPerPage()
-            })
-
-            // Renders all the page
-            // TODO modularize this
-            var render = function () {
-
-                $('.render-emails').html(
-                        "You have <b>" + emails.length + "</b> in your inbox. " +
-                                "Showing from <b>" + ((emailsView.page) * emailsView.perPage + 1) + "</b> " +
-                                "to <b>" + Math.min(emails.length, ((emailsView.page + 1) * emailsView.perPage)) + "</b>"
-                )
-
-                // Page numbering
-                $('.render-pages').html("Page " + (emailsView.page + 1) + " / " + emailsView.getTotalPages() + "")
-                $('.list-tools-pages').toggleClass("has-prev", emailsView.page > 0)
-                $('.list-tools-pages').toggleClass("has-next", emailsView.page < emailsView.getTotalPages() - 1)
-
-            }
-            render()
-
-
-            /**
-             * Events bootstrapping
-             */
-
-            /**
-             * Per Page
-             */
-            function getPerPage() {
-                return $('.list-tools-perPage select').val()
-            }
-
-            $('.list-tools-perPage').on('change', function (ev) {
-                emailsView.setPerPage(getPerPage())
-                emailsView.setPage(0)
-                render()
-            })
-
-            /**
-             * Page navigation
-             */
-            $('.action-prev').on('click', function () {
-                emailsView.prev()
-                render()
-            })
-
-            $('.action-next').on('click', function () {
-                emailsView.next()
-                render()
-            })
-
+        // View responsible for the list of emails
+        var emailsView = new ListView({
+            collection:DATA.emails,
+            $el:$(".page-contents table.emails"),
+            perPage:getPerPage()
         })
 
-    </script>
+        // Renders page elements according to current variables state
+        // TODO modularize this
+        var render = function () {
 
-    <div class='page'>
+            var filteredLen = emailsView.getTotalFilteredItems()
+                    , totalLen = emailsView.getTotalItems()
+                    , from = ((emailsView.page) * emailsView.perPage + 1)
+                    , to = Math.min(filteredLen, ((emailsView.page + 1) * emailsView.perPage))
 
-        <div class='page-header'>
+            // Emails count title
+            if (!emailsView.hasFilters()) {
+                $('.render-emails').html(
+                        "You have <b>" + totalLen + "</b> in your inbox. " +
+                                ( totalLen > 0
+                                        ? "Showing from <b>" + from + "</b> to <b>" + to + "</b>"
+                                        : ""
+                                        )
+                )
+            }
+            // Since we have filters we'll show something different
+            else {
+                $('.render-emails').html(
+                        "You have <b>" + totalLen + "</b> in your inbox. " +
+                                ( filteredLen > 0
+                                        ? "Showing from <b>" + from + "</b> to <b>" + to + "</b> <span style='color:grey'>(filtered, <span class='clear-filters'>clear filters</span>)</span>"
+                                        : "<b>You have no results for the filter</b>"
+                                        )
+                )
+                // TODO bind somewhere else
+                $('.render-emails .clear-filters').on('click', clearFilters)
+            }
+
+
+            // Page numbering
+            $('.render-pages').html("Page " + (emailsView.page + 1) + " / " + emailsView.getTotalPages() + "")
+            $('.list-tools-pages').toggleClass("has-prev", emailsView.page > 0)
+            $('.list-tools-pages').toggleClass("has-next", emailsView.page < emailsView.getTotalPages() - 1)
+
+            // Page filtering
+            $('.list-tools-filters-box').toggleClass('has-filters', emailsView.hasFilters())
+
+        }
+        render()
+
+
+        /**
+         * Events bootstrapping
+         * --
+         * Initializes event handling for the whole page
+         */
+
+        /**
+         * Search filter
+         */
+            // Returns a hash with all filters
+        function getFilters() {
+            return {
+                name:$('[name=filter-name]').val(),
+                email:$('[name=filter-email]').val(),
+                subject:$('[name=filter-subject]').val(),
+                today:$('[name=filter-today]').val()
+            }
+        }
+
+        // Debounced function to be called on keydown
+        var updateFilters = (function () {
+            emailsView.setFilters(getFilters())
+            render()
+        }).debounce(300)
+
+        var clearFilters = function () {
+            $('.list-tools-filters input').val('')
+            $('.list-tools-filters input[type=checkbox]').first().checked = false
+            emailsView.clearFilters()
+            render()
+        }
+
+        // Filter box opening/closing
+        $('.icon-filter').on('click', function (ev) {
+            $('.list-tools-filters').toggleClass('open')
+        })
+
+        // Upon input change, we'll refresh the filters
+        $('.list-tools-filters input').on('keydown', updateFilters)
+        $('.list-tools-filters input[type=checkbox]').on('change', updateFilters)
+        $('.clear-filters').on('click', clearFilters)
+
+        /**
+         * Per Page
+         */
+        function getPerPage() {
+            return $('.list-tools-perPage select').val()
+        }
+
+        $('.list-tools-perPage').on('change', function (ev) {
+            emailsView.setPerPage(getPerPage())
+            emailsView.setPage(0)
+            render()
+        })
+
+        /**
+         * Page navigation
+         */
+        $('.action-prev').on('click', function () {
+            emailsView.prev()
+            render()
+        })
+
+        $('.action-next').on('click', function () {
+            emailsView.next()
+            render()
+        })
+
+    })
+
+</script>
+
+<div class='page'>
+
+    <!-- Generic header -->
+    <div class='page-header'>
             <span class="logo">
                 yo<span class='logo-mail'>Mail</span>
             </span>
-        </div>
+    </div>
 
-        <div class='page-contents'>
+    <div class='page-contents'>
 
-            <!-- Total items found -->
-            <div class='list-header'>
-                <span class='render-emails'>You have <b>{{emails}}</b> in your inbox.</span>
+        <!-- Total items found -->
+        <div class='list-header'>
 
-                <!-- Tools -->
-                <div class='list-tools'>
-                    <div class='list-tools-filters'>
+            <!-- Descriptive header -->
+            <span class='render-emails'>You have <b>{{emails}}</b> in your inbox.</span>
+
+            <!-- Tools -->
+            <div class='list-tools'>
+
+                <!-- Filtering tool -->
+                <div class='list-tools-filters'>
+                    <i class="icon-filter"></i>
+
+                    <!-- Floating box -->
+                    <div class='list-tools-filters-box'>
                         <h1>Filters</h1>
+                        <span class='clear-filters'>clear filters</span>
                         <div class="row">
-                            Name: <input type=text name=filter-name/>
+                            <label>
+                                <span>Name</span>
+                                <input type=text name='filter-name'/>
+                            </label>
                         </div>
                         <div class="row">
-                            Email: <input type=text name=filter-email/>
+                            <label>
+                                <span>Email</span>
+                                <input type=text name='filter-email'/>
+                            </label>
                         </div>
                         <div class="row">
-                            Subject: <input type=text name=filter-subject/>
+                            <label>
+                                <span>Subject</span>
+                                <input type=text name='filter-subject'/>
+                            </label>
                         </div>
-                        <label>
-                            <input type=checkbox name=filter-date-cb/> Sent/received today
-                        </label>
+                        <div class='row'>
+                            <label>
+                                <input type=checkbox name='filter-today'/> Sent/received today
+                            </label>
+                        </div>
                     </div>
-                    <div class="list-tools-perPage">
-                        <label>
-                            Per page:
-                            <select>
-                                <option value="10" selected="selected">10</option>
-                                <option value="20">20</option>
-                                <option value="30">30</option>
-                            </select>
-                        </label>
-                    </div>
-                    <div class='list-tools-pages'>
-                        <i class="icon-caret-left action-prev"></i>
-                        <span class='list-pages render-pages'>Page {{page}} / {{totalPages}}</span>
-                        <i class="icon-caret-right action-next"></i>
-                    </div>
+
                 </div>
+
+                <!-- Pagination Limit tool -->
+                <div class="list-tools-perPage">
+                    <label>
+                        Per page:
+                        <select>
+                            <option value="10" selected="selected">10</option>
+                            <option value="20">20</option>
+                            <option value="30">30</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </label>
+                </div>
+
+                <!-- Pagination controls -->
+                <div class='list-tools-pages'>
+                    <i class="icon-caret-left action-prev"></i>
+                    <span class='list-pages render-pages'>Page {{page}} / {{totalPages}}</span>
+                    <i class="icon-caret-right action-next"></i>
+                </div>
+
             </div>
-
-            <!-- Container for the list of emails -->
-            <table class='list-view emails'>
-                <tr class='header'>
-                    <th data-attr="name">Name</th>
-                    <th data-attr="email">Email</th>
-                    <th data-attr="subject">Subject</th>
-                    <th data-attr="date">When</th>
-                </tr>
-            </table>
-
         </div>
 
-        <div class='page-footer'></div>
+        <!-- Container for the list of emails -->
+        <table class='list-view emails'>
+            <tr class='header'>
+                <th data-attr="name">Name</th>
+                <th data-attr="email">Email</th>
+                <th data-attr="subject">Subject</th>
+                <th data-attr="date">When</th>
+            </tr>
+        </table>
 
     </div>
+
+</div>
 
 </body>
 </html>

@@ -50,6 +50,17 @@
 .list-tools > div {
   display: inline-block;
 }
+.list-tools i {
+  padding: 3px 5px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.list-tools i:hover {
+  background-color: #ddd;
+  cursor: pointer;
+}
 /**
  * Tools pages
  */
@@ -102,10 +113,27 @@
  * Filters
  */
 .list-tools-filters {
+  position: relative;
+  color: #666;
+}
+.list-tools-filters.open {
+  color: #000;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  background-color: #ccc;
+}
+.list-tools-filters.open .list-tools-filters-box {
+  display: block;
+}
+.list-tools-filters-box {
+  display: none;
+  right: 0;
+  top: 100%;
   z-index: 100;
   position: absolute;
   padding: 10px;
-  border: 1px solid #000;
+  border: 1px solid #777;
   background-color: #fff;
   -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -113,16 +141,41 @@
   -webkit-border-radius: 6px;
   -moz-border-radius: 6px;
   border-radius: 6px;
+  width: 200px;
 }
-.list-tools-filters h1 {
+.list-tools-filters-box h1 {
   font: bold 18px 'Arial';
 }
-.list-tools-filters div.row {
+.list-tools-filters-box div.row {
   margin: 10px 0;
 }
-.list-tools-filters div.row input {
-  width: 100px;
+.list-tools-filters-box div.row span {
+  color: #666;
+  display: block;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 5px;
+}
+.list-tools-filters-box div.row input[type=text] {
+  display: block;
+  width: 100%;
   border: 1px solid #ccc;
+  padding: 5px;
+  -ms-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.list-tools-filters-box div.row input[type=checkbox] {
+  vertical-align: middle;
+}
+.list-tools-filters-box .clear-filters {
+  display: none;
+  position: absolute;
+  right: 4px;
+  top: 4px;
+}
+.list-tools-filters-box.has-filters .clear-filters {
+  display: block;
 }
 table.list-view {
   border-collapse: collapse;
@@ -182,6 +235,20 @@ td.email-email {
 }
 td.email-subject {
   width: 420px;
+}
+/**
+ * Filter clearing
+ */
+.clear-filters {
+  color: #058;
+  padding: 5px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.clear-filters:hover {
+  cursor: pointer;
+  background-color: #eee;
 }
 /**
 * Reset
