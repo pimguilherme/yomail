@@ -5,6 +5,7 @@
 var ListView = function (options) {
 
     Utils.extend(this, options || {})
+    this.perPage = parseInt(this.perPage)
 
     var self = this
     // We'll store the complete collection in a variable so we can restore it
@@ -118,7 +119,7 @@ ListView.prototype = {
     perPage:null,
     setPage:function (number) {
         // Let's limit the page
-        number = Math.max(0, Math.min(number, this.getTotalPages() - 1))
+        number = Math.max(0, Math.min(parseInt(number), this.getTotalPages() - 1))
         // Nothing to change!
         if (this.page == number) return
         this.page = number
@@ -126,7 +127,7 @@ ListView.prototype = {
     },
 
     setPerPage:function (perPage) {
-        this.perPage = perPage
+        this.perPage = parseInt(perPage)
         this.render()
     },
 
@@ -187,6 +188,7 @@ ListView.prototype = {
         if (this.perPage) {
             items = items.slice(this.page * this.perPage, this.page * this.perPage + this.perPage)
         }
+
 
         // Rendering each item
         items.each(function (model, i) {
