@@ -17,7 +17,17 @@ var ListView = function (options) {
 
         $(this).on('click', function (ev) {
             var $el = $(this)
-            self.setSortBy($el.attr('data-attr'))
+                , attr = $el.attr('data-attr')
+
+            // We are removing the sorting
+            if (self.sortByField == attr && self.sortByOrder == -1) {
+                self.setSortBy('id', 1)
+            }
+            // Rotating sorting
+            else {
+                self.setSortBy(attr)
+            }
+
         })
 
         $(this)
@@ -56,9 +66,9 @@ ListView.prototype = {
 
         // We'll store the complete collection in a variable so we can restore it later
         this.collection = this.completeCollection.filter(function (item) {
-            return ~item.name.indexOf(filters.name)
-                && ~item.email.indexOf(filters.email)
-                && ~item.subject.indexOf(filters.subject)
+            return Utils.searchText(item.name, filters.name)
+                && Utils.searchText(item.email, filters.email)
+                && Utils.searchText(item.subject, filters.subject)
                 && (!filters.today || item.date.isToday())
         })
         this.setPage(0)
@@ -88,7 +98,7 @@ ListView.prototype = {
     setSortBy:function (field, order) {
 
         // Forcing ASC order for first ordering of field
-        if (this.sortByField != field) {
+        if (this.sortByField != field && typeof order == 'undefined') {
             order = 1
         }
 

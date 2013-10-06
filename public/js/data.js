@@ -40,7 +40,9 @@ var emails = []
     }
 
 for (var i = 0; i < 80 + Math.random() * 30; i++) {
-    emails.push(createEmail())
+    var email = createEmail()
+    email.id = i
+    emails.push(email)
 }
 
 window.DATA = {
